@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Urutkan Kata Bahasa Inggris</title>
+  <style>
+    body {
+      background-color: #006400; /* hijau tua */
+      font-family: Arial, sans-serif;
+      color: #000;
+      text-align: center;
+      padding: 20px;
+    }
+
+    #container {
+      background-color: #90ee90; /* hijau muda */
+      padding: 20px;
+      border-radius: 10px;
+      display: inline-block;
+    }
+
+    .word {
+      display: inline-block;
+      padding: 10px 15px;
+      margin: 5px;
+      background-color: #fff;
+      border: 1px solid #000;
+      border-radius: 5px;
+      cursor: move;
+      user-select: none;
+    }
+
+    #drop-area {
+      margin-top: 20px;
+      padding: 10px;
+      min-height: 50px;
+      background-color: #ffffff; /* putih */
+      border: 2px dashed #000;
+      border-radius: 5px;
+    }
+
+    #buttons {
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      margin: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    #feedback {
+      margin-top: 15px;
+      font-weight: bold;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <h2>Urutkan Kata Bahasa Inggris</h2>
+    <p>Drag dan drop kata-kata ke kotak di bawah untuk menyusun kalimat:</p>
+    <div id="word-bank"></div>
+    <div id="drop-area" ondragover="allowDrop(event)" ondrop="drop(event)"></div>
+
+    <div id="buttons">
+      <button onclick="checkAnswer()">Hasil</button>
+      <button onclick="resetGame()">Reset</button>
+    </div>
+
+    <div id="feedback"></div>
+  </div>
+
+  <script>
+    const correctSentence = "I-am-going-to-the-market";
+    let words = ["I", "am", "going", "to", "the", "market"];
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    function loadWords() {
+      const wordBank = document.getElementById("word-bank");
+      wordBank.innerHTML = "";
+      const shuffledWords = [...words];
+      shuffle(shuffledWords);
+      shuffledWords.forEach((word, index) => {
+        const span = document.createElement("span");
+        span.className = "word";
+        span.draggable = true;
+        span.id = "word-" + index;
+        span.textContent = word;
+        span.ondragstart = drag;
+        wordBank.appendChild(span);
+      });
+
+      document.getElementById("drop-area").innerHTML = "";
+      document.getElementById("feedback").textContent = "";
+    }
+
+    function allowDrop(event) {
+      event.preventDefault();
+    }
+
+    function drag(event) {
+      event.dataTransfer.setData("text", event.target.id);
+    }
+
+    function drop(event) {
+      event.preventDefault();
+      const data = event.dataTransfer.getData("text");
+      const draggedElement = document.getElementById(data);
+      const dropArea = document.getElementById("drop-area");
+      const word = draggedElement.textContent;
+
+      const span = document.createElement("span");
+      span.textContent = word;
+      span.style.marginRight = "5px";
+      dropArea.appendChild(span);
+
+      draggedElement.remove(); // menghilangkan dari word bank
+    }
+
+    function checkAnswer() {
+      const dropArea = document.getElementById("drop-area");
+      const enteredWords = Array.from(dropArea.children).map(el => el.textContent).join("-");
+      const feedback = document.getElementById("feedback");
+      if (enteredWords === correctSentence) {
+        feedback.textContent = "Hebat, jawaban Anda benar!";
+        feedback.style.color = "green";
+      } else {
+        feedback.textContent = "Maaf, jawaban Anda salah. Ulangi lagi.";
+        feedback.style.color = "red";
+      }
+    }
+
+    function resetGame() {
+      loadWords();
+    }
+
+    // Load pertama kali
+    window.onload = loadWords;
+  </script>
+</body>
+</html>
